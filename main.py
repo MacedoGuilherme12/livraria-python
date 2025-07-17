@@ -11,18 +11,18 @@ livros = {}
 
 @app.get("/livros")
 def teste():
-    return {"livros" : livros}
+    return list(livros.values())
 
 @app.post("/adiciona")
 def adicionar(livro : Livros):
     for existe in livros.values():
         if(livro.quantidade_livro <= 0 ):
-            raise HTTPException(status_code=202, detail="Quantidade Invalida")
-        if(existe.titulo_livro == livro.titulo_livro):
-            raise HTTPException(status_code=202, detail="Livro ja existe!!")
+            raise HTTPException(status_code=400, detail="Quantidade Invalida")
+        if(existe["titulo_livro"] == livro.titulo_livro):
+            raise HTTPException(status_code=400, detail="Livro ja existe!!")
     id = len(livros) + 1
-    livros[id] = livro
-    return {"msg": "Livro adicionado com sucesso", "livro": livro.dict()}
+    livros[id] = livro.dict()
+    return {"msg": "Livro adicionado com sucesso", "livro": livro.dict()}                                                                                                                                                               
 
 @app.put("/altera/{id_livro}")
 def altera(id_livro : int, livro : Livros):
@@ -30,10 +30,9 @@ def altera(id_livro : int, livro : Livros):
     if id_livro not in livros:
         raise HTTPException(status_code=404, detail="Livro não existe")
     for id_existente, existente in livros.items():
-        print(f"existente:{existente}, id_existente: {id_existente}")
-        if livro.titulo_livro == existente.titulo_livro:
+        if id_livro != id_existente and livro.titulo_livro == existente["titulo_livro"]:
             return {"msg" : "O nome que deseja  trocar ja existe"}
-    livros[id_livro] = livro
+    livros[id_livro] = livro.dict()
     return {"msg" : "Livro atualizado com sucesso", "livros alterado" : livros[id_livro]}
 
 
